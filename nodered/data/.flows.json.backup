@@ -1,0 +1,268 @@
+[
+    {
+        "id": "68177ea9497333dc",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "dc465babf77e956c",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "mqtt-broker",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "server/room/data",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "e2a8065d486d9f41",
+        "type": "mongodb",
+        "hostname": "mongodb",
+        "topology": "direct",
+        "connectOptions": "",
+        "port": 27017,
+        "db": "server_monitor",
+        "name": ""
+    },
+    {
+        "id": "d50f7af6e38b304d",
+        "type": "inject",
+        "z": "68177ea9497333dc",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "904e39daf92d8b56"
+            ]
+        ]
+    },
+    {
+        "id": "904e39daf92d8b56",
+        "type": "function",
+        "z": "68177ea9497333dc",
+        "name": "function 1",
+        "func": "msg.topic = \"server/room/data\";   // <-- MUST be a valid topic\nmsg.payload = {\n  // temperature: Number((20 + Math.random() * 15).toFixed(2)),\n  topic: \"Server Room 1\",\n  temperature: Number((32 + Math.random() * 5).toFixed(2)),\n  humidity: Number((40 + Math.random() * 20).toFixed(2)),\n  timestamp: new Date().toISOString()\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 200,
+        "wires": [
+            [
+                "f3e8d422f8bf58bf"
+            ]
+        ]
+    },
+    {
+        "id": "f3e8d422f8bf58bf",
+        "type": "mqtt out",
+        "z": "68177ea9497333dc",
+        "name": "",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "dc465babf77e956c",
+        "x": 770,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "4dfadd52aa570f52",
+        "type": "mongodb out",
+        "z": "68177ea9497333dc",
+        "mongodb": "e2a8065d486d9f41",
+        "name": "",
+        "collection": "readings",
+        "payonly": true,
+        "upsert": false,
+        "multi": false,
+        "operation": "insert",
+        "x": 1070,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "77cbfdd420569a40",
+        "type": "mqtt in",
+        "z": "68177ea9497333dc",
+        "name": "",
+        "topic": "server/room/data",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "dc465babf77e956c",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 420,
+        "wires": [
+            [
+                "1236b6e93968ea2c",
+                "2b2c9612e37f01dc",
+                "6bf9979225773e03"
+            ]
+        ]
+    },
+    {
+        "id": "1236b6e93968ea2c",
+        "type": "debug",
+        "z": "68177ea9497333dc",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 460,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "2b2c9612e37f01dc",
+        "type": "function",
+        "z": "68177ea9497333dc",
+        "name": "Prepare Mongo Document",
+        "func": "// Ensure we insert ONLY the sensor reading as a document\nconst p = msg.payload || {};\n\nmsg.payload = {\n  temperature: Number(p.temperature),\n  humidity: Number(p.humidity),\n  timestamp: p.timestamp ? new Date(p.timestamp) : new Date(),\n  topic: msg.topic || \"server/room/data\"\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 380,
+        "wires": [
+            [
+                "4dfadd52aa570f52",
+                "2a33ac581a371382"
+            ]
+        ]
+    },
+    {
+        "id": "2a33ac581a371382",
+        "type": "debug",
+        "z": "68177ea9497333dc",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 920,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "6bf9979225773e03",
+        "type": "function",
+        "z": "68177ea9497333dc",
+        "name": "Alert Gate",
+        "func": "const THRESHOLD = 30;              // Trigger alert if temp > 30°C\nconst COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes in milliseconds\nconst now = Date.now();\nconst last = context.get(\"lastAlertTs\") || 0;\nconst t = Number(msg.payload.temperature);\n\nif (t > THRESHOLD && (now - last) > COOLDOWN_MS) {\n  context.set(\"lastAlertTs\", now); // Record the time of this alert\n  return msg;                      // Let the message pass through\n}\n\nreturn null;                       // Block the message (no alert)",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 540,
+        "wires": [
+            [
+                "f4204e5bb28bec9a",
+                "f4c12ad48c01a7e2"
+            ]
+        ]
+    },
+    {
+        "id": "f4204e5bb28bec9a",
+        "type": "debug",
+        "z": "68177ea9497333dc",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 820,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "f4c12ad48c01a7e2",
+        "type": "http request",
+        "z": "68177ea9497333dc",
+        "name": "Push to n8n",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:5678/webhook/server-alert",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1070,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    }
+]

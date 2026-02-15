@@ -1,0 +1,15 @@
+{
+  "name": "server-monitor-api",
+  "version": "1.0.0",
+  "description": "Smart Server Room Monitor API",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mongodb": "^6.8.0"
+  }
+}

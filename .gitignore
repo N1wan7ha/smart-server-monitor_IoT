@@ -1,0 +1,17 @@
+# npm cache
+nodered/data/.npm/
+**/.npm/
+
+# Node modules (if any)
+node_modules/
+
+# Logs
+*.log
+n8n/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional: if you don't want the embedded dashboard as a submodule
+# dashboard/
